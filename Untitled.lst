@@ -1,0 +1,442 @@
+MPASM  5.31                      UNTITLED.ASM   10-25-2023  12:46:33         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;******************************************************************************************
+                      00002 ;Programa prueba.asm                                                                                    
+                                                                                                            
+                      00003 ;Velocidad de reloj: 4mhz                                                                       
+                      00004 ;Perro Guardian: deshabilitado                                                          
+                      00005 ;Proteccion de codigo: OFF
+                      00006 ;******************************************************************************************
+                      00007 
+                      00008                                                 LIST    P=16F628A                       ;Tipo de PIC
+                      00009                                                 #INCLUDE <P16F628A.INC>         ;Libreria
+                      00001         LIST
+                      00002 ; P16F628A.INC  Standard Header File, Version 1.10    Microchip Technology, Inc.
+                      00265         LIST
+                      00010                                                 ERRORLEVEL -302
+                      00011                                                 
+                      00012 ;******************************************************************************************
+                      00013 
+  00000020            00014 CANT_AGUA_MAX           EQU 0x20
+  00000021            00015 CANT_AGUA_ACTUAL        EQU 0x21
+  00000022            00016 TEMP_AGUA                       EQU 0x22
+  00000023            00017 TEMP_MINIMA                     EQU 0X23
+  00000024            00018 TEMP_MAXIMA                     EQU 0x24
+                      00019 
+  00000025            00020 CONTADOR_1                      EQU 0x25        ;Registros para los retardos
+  00000026            00021 CONTADOR_2                      EQU 0x26
+  00000027            00022 CONTADOR_3                      EQU 0x27                                                
+                      00023                                                 
+                      00024 ;******************************************************************************************
+                      00025                                                 ORG 0x00                ;Indica la direccion de la memor
+                            ia de
+                      00026                                                                                 ;programa donde situar l
+                            a siguiente instruccion
+                      00027 ;******************************************************************************************
+                      00028 
+0000                  00029 INICIO
+                      00030 
+0000   1683           00031                 BSF             STATUS,RP0                                      ;Accedemos al banco 1
+0001   30F0           00032                 MOVLW   B'11110000'                                     ;Configuramos los bits RB0 RB1 R
+                            B2 RB3 como salida
+0002   0086           00033                 MOVWF   TRISB                                           ;Almacenamos el valor en TRISB
+0003   1283           00034                 BCF             STATUS,RP0                                      ;Volvemos al banco 0
+0004   0186           00035                 CLRF    PORTB
+                      00036 
+0005   306E           00037                 MOVLW   D'110'                                          ;Cargamos en w el valor de la CA
+                            NT_AGUA_MAX
+0006   00A0           00038                 MOVWF   CANT_AGUA_MAX                           ;Cargamos el valor de w en CANT_AGUA_MAX
+                             (CANT_AGUA_MAX = 110)
+                      00039         
+0007   3064           00040                 MOVLW   D'100'                                          ;Cargamos en w el valor inicial 
+                            de CANT_AGUA_ACTUAL
+0008   00A1           00041                 MOVWF   CANT_AGUA_ACTUAL                        ;Cargamos el valor de w en CANT_AGUA_ACT
+                            UAL (CANT_AGUA_ACTUAL = 50)     
+                      00042 
+MPASM  5.31                      UNTITLED.ASM   10-25-2023  12:46:33         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0009                  00043 RESTA_CANTIDADES                                                        ;Hasta que la cantidad actual de
+                             agua sea igual a la cantidad maxima 
+                      00044 
+0009   0220           00045                 SUBWF   CANT_AGUA_MAX,0                         ;Restamos CANT_AGUA_ACTUAL - CANT_AGUA_M
+                            AX      
+000A   1D03           00046                 BTFSS   STATUS,Z                                        ;Chequemos el bit Z del STATUS
+000B   2???           00047                 GOTO    ACCIONAR_BOMBA                          ;Si es 0 incrementamos el agua, si es 1 
+                            salta
+000C   2???           00048                 CALL    APAGAR_LED_BOMBA                        ;Apagamos el LED que indica que la bomba
+                             esta en accion
+000D   2???           00049                 CALL    LED_CANT_AGUA_ALCANZADA         ;Encendemos el LED que indica que se llego a la 
+                            cant de agua maxima
+                      00050                                                                                         ;solo se prende 
+                            por un segundo
+                      00051                 
+000E   3014           00052                 MOVLW   D'20'                                           ;Cargamos en w el valor de la TE
+                            MP_MINIMA
+000F   00A3           00053                 MOVWF   TEMP_MINIMA                                     ;Cargamos el valor de w en TEMP_
+                            MINIMA (TEMP_MINIMA = 20)
+                      00054 
+0010   302D           00055                 MOVLW   D'45'                                           ;Cargamos en w el valor de la TE
+                            MP_MAXIMA
+0011   00A4           00056                 MOVWF   TEMP_MAXIMA                                     ;Cargamos el valor de w en TEMP_
+                            MAXIMA (TEMP_MAXIMA = 45)
+                      00057 
+0012   3028           00058                 MOVLW   D'40'                                           ;Cargamos en w el valor incial d
+                            e TEMP_AGUA
+0013   00A2           00059                 MOVWF   TEMP_AGUA                                       ;Cargamos el valor de w en TEMP_
+                            AGUA (TEMP_AGUA = 25)
+                      00060 
+0014                  00061 RESTA_TEMPERATURAS                                                      ;Cuando llega a la cantidad de a
+                            gua, debemos verificar que la temperatura
+                      00062                                                                                         ;sea igual a la 
+                            TEMP_MAXIMA
+                      00063                 
+0014   0224           00064                 SUBWF   TEMP_MAXIMA,0                           ;Restamos TEMP_AGUA - TEMP_MAXIMA
+0015   1D03           00065                 BTFSS   STATUS,Z                                        ;Chequeamos el bit Z del STATUS
+0016   2???           00066                 GOTO    ENCENDER_RESISTENCIA            ;Si la TEMP_AGUA < TEMP_MAXIMA, calentamos el ag
+                            ua,sino salta
+0017   2???           00067                 CALL    LED_TEMP_MAXIMA_ALCANZADA       ;Encendemos el LED que indica que se llego a la 
+                            temp maxima
+                      00068                                                                                         ;solo se prende 
+                            por un segundo
+                      00069 
+0018   2???           00070                 CALL    RETARDO_1_SEG                           ;Esperemos 1 segundo
+0019   2???           00071                 CALL    ABRIR_CANILLA                           ;Se abre la canilla y se comienza a decr
+                            emantar el agua
+                      00072                 
+001A   2???           00073                 GOTO    INICIO
+                      00074                                         
+                      00075 ;******************************************************************************************
+                      00076 ; Subrutina para incrementar el agua actual
+                      00077 ;******************************************************************************************
+MPASM  5.31                      UNTITLED.ASM   10-25-2023  12:46:33         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00078 
+001B                  00079 ACCIONAR_BOMBA
+                      00080                 
+001B   2???           00081                 CALL    ENCENDER_LED_BOMBA
+001C   0AA1           00082                 INCF    CANT_AGUA_ACTUAL,F              ;Incrementamos en uno la CANT_AGUA_ACTUAL
+001D   0821           00083                 MOVFW   CANT_AGUA_ACTUAL                ;Guardamos el valor en w
+001E   2???           00084                 GOTO    RESTA_CANTIDADES                ;Volvemos a chequear 
+                      00085 
+                      00086 ;******************************************************************************************
+                      00087 ; Subrutina para calentar el agua
+                      00088 ;******************************************************************************************
+                      00089 
+001F                  00090 ENCENDER_RESISTENCIA
+                      00091                 
+001F   2???           00092                 CALL    LED_AGUA_CALENTANDO             ;Parpadeo del LED
+0020   0AA2           00093                 INCF    TEMP_AGUA,F                             ;Incrementamos en uno la TEMP_AGUA      
+0021   0822           00094                 MOVFW   TEMP_AGUA                               ;Guardamos el valor en w
+0022   2???           00095                 GOTO    RESTA_TEMPERATURAS              ;Volvemos a chequear
+                      00096 
+                      00097 ;******************************************************************************************
+                      00098 ; Subrutina para abrir la canilla
+                      00099 ;******************************************************************************************     
+                      00100 
+0023                  00101 ABRIR_CANILLA
+                      00102                 
+0023   03A1           00103                 DECF    CANT_AGUA_ACTUAL,F              ;La canilla se abre, es decir se comienza a decr
+                            ementar el agua
+0024   3032           00104                 MOVLW   D'50'                                   ;Movemos 50 a w (el valor al que debe ll
+                            egar el agua actual)
+0025   0221           00105                 SUBWF   CANT_AGUA_ACTUAL,0              ;Restamos 50 - CANT_AGUA_ACTUAL
+0026   1D03           00106                 BTFSS   STATUS,Z                                ;Chequemos el bit Z del STATUS
+0027   2???           00107                 GOTO    ABRIR_CANILLA                   ;Si es 0 seguimos decrementando, si es 1 salta
+0028   0008           00108                 RETURN
+                      00109                                 
+                      00110 ;******************************************************************************************
+                      00111 ; Subrutinas de LEDS
+                      00112 ;******************************************************************************************
+                      00113 
+0029                  00114 ENCENDER_LED_BOMBA
+                      00115                 
+0029   1406           00116                 BSF             PORTB,0                 ;Prendemos el LED en RB0
+002A   2???           00117                 CALL    RETARDO_1_SEG   ;Retardo de 1 seg para que se vea bien
+002B   0008           00118                 RETURN
+                      00119 
+002C                  00120 APAGAR_LED_BOMBA
+                      00121                 
+002C   1006           00122                 BCF             PORTB,0                 ;Apagamos el LED en RB0
+002D   0008           00123                 RETURN
+                      00124 
+002E                  00125 LED_CANT_AGUA_ALCANZADA
+                      00126 
+002E   1486           00127                 BSF             PORTB,1
+002F   2???           00128                 CALL    RETARDO_1_SEG
+MPASM  5.31                      UNTITLED.ASM   10-25-2023  12:46:33         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0030   1086           00129                 BCF             PORTB,1
+0031   0008           00130                 RETURN
+                      00131 
+0032                  00132 LED_AGUA_CALENTANDO
+                      00133 
+0032   1506           00134                 BSF             PORTB,2
+0033   2???           00135                 CALL    RETARDO_1_SEG   ;Retaro de 1 seg para el parpadeo
+0034   1106           00136                 BCF             PORTB,2
+0035   2???           00137                 CALL    RETARDO_1_SEG   ;Retardo de 1 seg para que se vea bien
+0036   0008           00138                 RETURN
+                      00139 
+0037                  00140 LED_TEMP_MAXIMA_ALCANZADA
+                      00141 
+0037   1586           00142                 BSF             PORTB,3
+0038   2???           00143                 CALL    RETARDO_1_SEG
+0039   1186           00144                 BCF             PORTB,3
+003A   0008           00145                 RETURN
+                      00146                                                                                                         
+                      00147 ;******************************************************************************************
+                      00148 ; Subrutinas de retardo
+                      00149 ;******************************************************************************************
+                      00150 
+003B                  00151 RETARDO_1_SEG
+                      00152 
+003B   300A           00153                 MOVLW   D'10'
+003C   00A7           00154                 MOVWF   CONTADOR_3
+003D                  00155 CICLO_3
+003D   3064           00156                 MOVLW   D'100'
+003E   00A6           00157                 MOVWF   CONTADOR_2
+003F                  00158 CICLO_2
+003F   30FA           00159                 MOVLW   D'250'
+0040   00A5           00160                 MOVWF   CONTADOR_1
+0041                  00161 CICLO_1 
+0041   0000           00162                 NOP
+0042   0BA5           00163                 DECFSZ  CONTADOR_1,F
+0043   2???           00164                 GOTO    CICLO_1
+0044   0BA6           00165                 DECFSZ  CONTADOR_2,F
+0045   2???           00166                 GOTO    CICLO_2
+0046   0BA7           00167                 DECFSZ  CONTADOR_3,F
+0047   2???           00168                 GOTO    CICLO_3
+0048   0008           00169                 RETURN
+                      00170 
+                      00171                 END
+MPASM  5.31                      UNTITLED.ASM   10-25-2023  12:46:33         PAGE  5
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ABRIR_CANILLA                     00000023
+ACCIONAR_BOMBA                    0000001B
+ADEN                              00000003
+APAGAR_LED_BOMBA                  0000002C
+BRGH                              00000002
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CANT_AGUA_ACTUAL                  00000021
+CANT_AGUA_MAX                     00000020
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCPR1H                            00000016
+CCPR1L                            00000015
+CICLO_1                           00000041
+CICLO_2                           0000003F
+CICLO_3                           0000003D
+CIS                               00000003
+CM0                               00000000
+CM1                               00000001
+CM2                               00000002
+CMCON                             0000001F
+CMIE                              00000006
+CMIF                              00000006
+CONTADOR_1                        00000025
+CONTADOR_2                        00000026
+CONTADOR_3                        00000027
+CREN                              00000004
+CSRC                              00000007
+DC                                00000001
+EEADR                             0000009B
+EECON1                            0000009C
+EECON2                            0000009D
+EEDATA                            0000009A
+EEIE                              00000007
+EEIF                              00000007
+ENCENDER_LED_BOMBA                00000029
+ENCENDER_RESISTENCIA              0000001F
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GIE                               00000007
+INDF                              00000000
+INICIO                            00000000
+MPASM  5.31                      UNTITLED.ASM   10-25-2023  12:46:33         PAGE  6
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+LED_AGUA_CALENTANDO               00000032
+LED_CANT_AGUA_ALCANZADA           0000002E
+LED_TEMP_MAXIMA_ALCANZADA         00000037
+NOT_BO                            00000000
+NOT_BOD                           00000000
+NOT_BOR                           00000000
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+OERR                              00000001
+OPTION_REG                        00000081
+OSCF                              00000003
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PIE1                              0000008C
+PIR1                              0000000C
+PORTA                             00000005
+PORTB                             00000006
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+RBIE                              00000003
+RBIF                              00000000
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+RESTA_CANTIDADES                  00000009
+RESTA_TEMPERATURAS                00000014
+RETARDO_1_SEG                     0000003B
+RP0                               00000005
+RP1                               00000006
+RX9                               00000006
+RX9D                              00000000
+SPBRG                             00000099
+SPEN                              00000007
+SREN                              00000005
+STATUS                            00000003
+SYNC                              00000004
+T0CS                              00000005
+T0IE                              00000005
+MPASM  5.31                      UNTITLED.ASM   10-25-2023  12:46:33         PAGE  7
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1OSCEN                           00000003
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+TEMP_AGUA                         00000022
+TEMP_MAXIMA                       00000024
+TEMP_MINIMA                       00000023
+TMR0                              00000001
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISB                             00000086
+TRMT                              00000001
+TX9                               00000006
+TX9D                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+VR0                               00000000
+VR1                               00000001
+VR2                               00000002
+VR3                               00000003
+VRCON                             0000009F
+VREN                              00000007
+VROE                              00000006
+VRR                               00000005
+W                                 00000000
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_BODEN_OFF                        00003FBF
+_BODEN_ON                         00003FFF
+_BOREN_OFF                        00003FBF
+MPASM  5.31                      UNTITLED.ASM   10-25-2023  12:46:33         PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_BOREN_ON                         00003FFF
+_CP_OFF                           00003FFF
+_CP_ON                            00001FFF
+_DATA_CP_OFF                      00003FFF
+_DATA_CP_ON                       00003EFF
+_ER_OSC_CLKOUT                    00003FFF
+_ER_OSC_NOCLKOUT                  00003FFE
+_EXTCLK_OSC                       00003FEF
+_HS_OSC                           00003FEE
+_INTOSC_OSC_CLKOUT                00003FFD
+_INTOSC_OSC_NOCLKOUT              00003FFC
+_INTRC_OSC_CLKOUT                 00003FFD
+_INTRC_OSC_NOCLKOUT               00003FFC
+_LP_OSC                           00003FEC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_MCLRE_OFF                        00003FDF
+_MCLRE_ON                         00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_RC_OSC_CLKOUT                    00003FFF
+_RC_OSC_NOCLKOUT                  00003FFE
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_XT_OSC                           00003FED
+__16F628A                         00000001
+__DEBUG                           1
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     1 suppressed
+
+

@@ -1,0 +1,60 @@
+MPLINK 4.31, Linker
+Linker Map File - Created Wed Oct 25 12:46:34 2023
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000092
+                   .cinit    romdata   0x000049    program   0x000004
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x00004a      
+            75 out of 2183 program addresses used, program memory utilization is 3%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+            ABRIR_CANILLA   0x000023    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+           ACCIONAR_BOMBA   0x00001b    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+         APAGAR_LED_BOMBA   0x00002c    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+                  CICLO_1   0x000041    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+                  CICLO_2   0x00003f    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+                  CICLO_3   0x00003d    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+       ENCENDER_LED_BOMBA   0x000029    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+     ENCENDER_RESISTENCIA   0x00001f    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+                   INICIO   0x000000    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+      LED_AGUA_CALENTANDO   0x000032    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+  LED_CANT_AGUA_ALCANZADA   0x00002e    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+LED_TEMP_MAXIMA_ALCANZADA   0x000037    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+         RESTA_CANTIDADES   0x000009    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+       RESTA_TEMPERATURAS   0x000014    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+            RETARDO_1_SEG   0x00003b    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                   INICIO   0x000000    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+         RESTA_CANTIDADES   0x000009    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+       RESTA_TEMPERATURAS   0x000014    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+           ACCIONAR_BOMBA   0x00001b    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+     ENCENDER_RESISTENCIA   0x00001f    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+            ABRIR_CANILLA   0x000023    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+       ENCENDER_LED_BOMBA   0x000029    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+         APAGAR_LED_BOMBA   0x00002c    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+  LED_CANT_AGUA_ALCANZADA   0x00002e    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+      LED_AGUA_CALENTANDO   0x000032    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+LED_TEMP_MAXIMA_ALCANZADA   0x000037    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+            RETARDO_1_SEG   0x00003b    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+                  CICLO_3   0x00003d    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+                  CICLO_2   0x00003f    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+                  CICLO_1   0x000041    program     static C:\Users\camim\Downloads\TP\Untitled.asm
+
+
